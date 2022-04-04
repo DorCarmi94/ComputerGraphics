@@ -14,8 +14,18 @@ public:
 	void WhenTranslate();
 	void Animate() override;
 	void ScaleAllShapes(float amt, int viewportIndx);
+
+	Eigen::Vector3cf FindCubicRoots();
+
+	std::complex<float> NewtonCubicRoot(std::complex<float> num);
+
+	Eigen::Vector3cf FindRootsOfReduceEquation(Eigen::Vector2cf reduceCoeffs);
 	
 	~Assignment1(void);
+	
+	Eigen::Vector4f coeffs;
+	int picked_coeff;
+	int iterationNum;
 };
 
 

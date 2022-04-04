@@ -105,21 +105,29 @@
 				break;
 
 			case GLFW_KEY_UP:
-				rndr->MoveCamera(0, scn->xRotate, 0.05f);
+				scn->coeffs[scn->picked_coeff - 1] += 0.01;
+				//rndr->MoveCamera(0, scn->xRotate, 0.05f);
 				
 				break;
 			case GLFW_KEY_DOWN:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->xRotate, -0.05f);
+				scn->coeffs[scn->picked_coeff-1] -= 0.01;
+				//rndr->MoveCamera(0, scn->xRotate, -0.05f);
 				break;
 			case GLFW_KEY_LEFT:
-				rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				scn->iterationNum += 1;
+				//rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				//rndr->MoveCamera(0, scn->yRotate, 0.05f);
 				break;
 			case GLFW_KEY_RIGHT:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->yRotate, -0.05f);
+				//cout<< "down: "<<endl;
+				if (scn->iterationNum > 1) {
+					scn->iterationNum -= 1;
+				}
+				//rndr->MoveCamera(0, scn->yRotate, -0.05f);
 				break;
 			case GLFW_KEY_U:
 				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
@@ -140,6 +148,18 @@
 				break;
 			case GLFW_KEY_F:
 				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
+				break;
+			case GLFW_KEY_1:
+				scn->picked_coeff = 1;
+				break;
+			case GLFW_KEY_2:
+				scn->picked_coeff = 2;
+				break;
+			case GLFW_KEY_3:
+				scn->picked_coeff = 3;
+				break;
+			case GLFW_KEY_4:
+				scn->picked_coeff = 4;
 				break;
 			default:
 				break;
