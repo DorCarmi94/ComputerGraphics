@@ -23,7 +23,7 @@ public:
 	
 	~Assignment1(void);
 	
-	Eigen::Vector4f coeffs;
+	Eigen::Vector4cf coeffs;
 	int picked_coeff;
 	int iterationNum;
 };

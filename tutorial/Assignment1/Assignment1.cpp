@@ -15,6 +15,9 @@ static void printMat(const Eigen::Matrix4d& mat)
 
 Assignment1::Assignment1()
 {
+	coeffs = Eigen::Vector4cf::Zero();
+	picked_coeff = 1;
+	iterationNum = 1;
 }
 
 //Assignment1::Assignment1(float angle ,float relationWH, float near, float far) : Scene(angle,relationWH,near,far)
@@ -28,7 +31,7 @@ Eigen::Vector3cf Assignment1::FindCubicRoots()
 	std::complex<float> bOver3a = (coeffs[1] / coeffs[0]) / 3.0f;
 	reduceCoeffs[0] = coeffs[2] / coeffs[0] - 3.0f * bOver3a * bOver3a;
 	reduceCoeffs[1] = coeffs[2] / coeffs[0] * bOver3a - coeffs[3] / coeffs[0] - 2.0f * bOver3a * bOver3a * bOver3a;
-	// std::cout<<"reduced\n"<<reduceCoeffs<<std::endl;
+	std::cout << "reduced\n" << reduceCoeffs << std::endl;
 	if (reduceCoeffs.norm() > 0.000001)
 	{
 		roots = FindRootsOfReduceEquation(reduceCoeffs);
@@ -49,11 +52,25 @@ Eigen::Vector3cf Assignment1::FindCubicRoots()
 std::complex<float> Assignment1::NewtonCubicRoot(std::complex<float> num)
 {
 	std::complex<float> root = num;
-	const int iter = 7;
+	const int iter = 9;
+	bool isSmall = false;
+	if (std::abs(num) < 1e-3)
+	{
+		if (std::abs(num) == 0)
+			return num;
+		isSmall = true;
+		num = num * 1e6f;
+		root = num;
+	}
+	else
+		if (std::abs(num) < 0.9f)
+			root = 1;
 	for (int k = 0; k < iter; k++)
 	{
 		root = (2.0f * root * root * root + num) / root / root / 3.0f;
 	}
+	if (isSmall)
+		root = root / 100.0f;
 	return root;
 }
 
@@ -73,36 +90,33 @@ void Assignment1::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 2};
 	unsigned int slots[3] = { 0 , 1, 2 };
-	coeffs = {3, -5, 7, 80};
-	picked_coeff = 1;
-	iterationNum = 1;
+	coeffs[0] = 1;
+	coeffs[1] = 1;
+	coeffs[2] = 0;
+	coeffs[3] = 0;
 	
-	AddShader("../../shaders/pickingShader");
-	AddShader("../../shaders/cubemapShader");
-	AddShader("../../shaders/basicShader");
 	AddShader("../../shaders/pickingShader");
 	AddShader("../../shaders/newtonShader");
 	
 	AddTexture("../../textures/plane.png",2);
-	AddTexture("../../textures/cubemaps/Daylight Box_", 3);
 	AddTexture("../../textures/grass.bmp", 2);
 
-	AddMaterial(texIDs,slots, 1);
+	AddMaterial(texIDs,slots, 2);
 	AddMaterial(texIDs+1, slots+1, 1);
-	AddMaterial(texIDs + 2, slots + 2, 1);
 	
-	AddShape(Cube, -2, TRIANGLES);
-	AddShapeFromFile("../../data/plane.obj", -1, TRIANGLES);
+	AddShape(Plane, -1, TRIANGLES, 0);
+	SetShapeShader(0, 1);
+	SetShapeMaterial(0, 0);
+	//pickedShape = 0;
+	//float s = 3;
+	//ShapeTransformation(scaleAll, s,0);
+	//SetShapeStatic(0);
 
-	SetShapeShader(1, 4);
-	SetShapeMaterial(1, 0);
-	SetShapeMaterial(0, 1);
-
-	pickedShape = 0;
-	float s = 60;
-	ShapeTransformation(scaleAll, s,0);
-	pickedShape = -1;
-	SetShapeStatic(0);
+	Eigen::Vector3cf roots = FindCubicRoots();
+	std::cout << "the roots are:\n" << roots << std::endl;
+	std::cout << "first " << coeffs[0] * roots[0] * roots[0] * roots[0] + coeffs[1] * roots[0] * roots[0] + coeffs[2] * roots[0] + coeffs[3] << std::endl;
+	std::cout << "second " << coeffs[0] * roots[1] * roots[1] * roots[1] + coeffs[1] * roots[1] * roots[1] + coeffs[2] * roots[1] + coeffs[3] << std::endl;
+	std::cout << "third " << coeffs[0] * roots[2] * roots[2] * roots[2] + coeffs[1] * roots[2] * roots[2] + coeffs[2] * roots[2] + coeffs[3] << std::endl;
 
 //	ReadPixel(); //uncomment when you are reading from the z-buffer
 }
@@ -125,31 +139,20 @@ void Assignment1::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& Vie
 		BindMaterial(s, data_list[shapeIndx]->GetMaterial());
 	}
 	if (shaderIndx == 0)
-		s->SetUniform4f("lightColor2", r / 255.0f, g / 255.0f, b / 255.0f, 0.0f);
+		s->SetUniform4f("lightColor", r / 255.0f, g / 255.0f, b / 255.0f, 0.0f);
 	else {
 		Eigen::Vector3cf temp = FindCubicRoots();
-		s->SetUniform1f("x1", temp[0].real());
-		s->SetUniform1f("y1", temp[0].imag());
-		s->SetUniform1f("x2", temp[1].real());
-		s->SetUniform1f("y2", temp[1].imag());
-		s->SetUniform1f("x3", temp[2].real());
-		s->SetUniform1f("y3", temp[2].imag());
+		s->SetUniform1f("x1", 1 - temp[0].real()); /// 1200.0f);
+		s->SetUniform1f("y1", 1 - temp[0].imag()); /// 800.0f);
+		s->SetUniform1f("x2", 1 - temp[1].real()); /// 1200.0f);
+		s->SetUniform1f("y2", 1 - temp[1].imag()); /// 800.0f);
+		s->SetUniform1f("x3", 1 - temp[2].real()); /// 1200.0f);
+		s->SetUniform1f("y3", 1 - temp[2].imag()); /// 800.0f);
 	
 		//s->SetUniform4f("coeffs", temp[0], temp[1], temp[2], 1);
 		//s->SetUniform4f("coeffs", coeffs[0], coeffs[1], coeffs[2], coeffs[3]);
 		//s->SetUniform4f("lightColor", 1, 0, 0, 0.5f);
 	}
-	//textures[0]->Bind(0);
-
-	
-	
-
-	//s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	//s->SetUniform4f("lightDirection", 0.0f , 0.0f, -1.0f, 0.0f);
-//	if(shaderIndx == 0)
-//		s->SetUniform4f("lightColor",r/255.0f, g/255.0f, b/255.0f,1.0f);
-//	else 
-//		s->SetUniform4f("lightColor",0.7f,0.8f,0.1f,1.0f);
 	s->Unbind();
 }
 

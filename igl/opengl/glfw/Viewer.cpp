@@ -503,6 +503,7 @@ IGL_INLINE bool
         data()->hide = false;
         data()->show_overlay = 0;
         this->parents.emplace_back(parent);
+        //std::cout << "sphere id "<< data()->id <<std::endl;
         return data_list.size() - 1;
     }
 

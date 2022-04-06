@@ -41,14 +41,24 @@
 		
 		if (rndr->IsPicked())
 		{
-			rndr->UpdateZpos((int)yoffset);
-			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
+			scn->data()->MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + yoffset * 0.01));
+
+			//scn->data()->MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + yoffset * 0.01)); //data().MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + y * 0.01));
+
+			//rndr->UpdateZpos((int)yoffset);
+			//rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
 		}
 		else
 		{
 			rndr->MoveCamera(0, rndr->zTranslate, (float)yoffset);
 		}
 		
+
+		//Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+		//if (rndr->IsPicked())
+		//	scn->data()->MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + yoffset * 0.01)); //data().MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + y * 0.01));
+		//else
+		//	rndr->GetScene()->MyTranslate(Eigen::Vector3d(0, 0, -yoffset * 0.03), true);
 	}
 	
 	void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -112,7 +122,7 @@
 			case GLFW_KEY_DOWN:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				scn->coeffs[scn->picked_coeff-1] -= 0.01;
+				scn->coeffs[scn->picked_coeff - 1] -= 0.01;
 				//rndr->MoveCamera(0, scn->xRotate, -0.05f);
 				break;
 			case GLFW_KEY_LEFT:
