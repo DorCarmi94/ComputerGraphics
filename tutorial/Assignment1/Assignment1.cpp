@@ -92,8 +92,8 @@ void Assignment1::Init()
 	unsigned int slots[3] = { 0 , 1, 2 };
 	coeffs[0] = 1;
 	coeffs[1] = 1;
-	coeffs[2] = 0;
-	coeffs[3] = 0;
+	coeffs[2] = 1;
+	coeffs[3] = 1;
 	
 	AddShader("../../shaders/pickingShader");
 	AddShader("../../shaders/newtonShader");
@@ -142,16 +142,15 @@ void Assignment1::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& Vie
 		s->SetUniform4f("lightColor", r / 255.0f, g / 255.0f, b / 255.0f, 0.0f);
 	else {
 		Eigen::Vector3cf temp = FindCubicRoots();
-		s->SetUniform1f("x1", 1 - temp[0].real()); /// 1200.0f);
-		s->SetUniform1f("y1", 1 - temp[0].imag()); /// 800.0f);
-		s->SetUniform1f("x2", 1 - temp[1].real()); /// 1200.0f);
-		s->SetUniform1f("y2", 1 - temp[1].imag()); /// 800.0f);
-		s->SetUniform1f("x3", 1 - temp[2].real()); /// 1200.0f);
-		s->SetUniform1f("y3", 1 - temp[2].imag()); /// 800.0f);
-	
-		//s->SetUniform4f("coeffs", temp[0], temp[1], temp[2], 1);
-		//s->SetUniform4f("coeffs", coeffs[0], coeffs[1], coeffs[2], coeffs[3]);
-		//s->SetUniform4f("lightColor", 1, 0, 0, 0.5f);
+		s->SetUniform1f("x1", temp[0].real());
+		s->SetUniform1f("y1", temp[0].imag());
+		s->SetUniform1f("x2", temp[1].real());
+		s->SetUniform1f("y2", temp[1].imag());
+		s->SetUniform1f("x3", temp[2].real());
+		s->SetUniform1f("y3", temp[2].imag());
+		s->SetUniform4f("coeffs", coeffs[0].real(), coeffs[1].real(), coeffs[2].real(), coeffs[3].real());
+		s->SetUniform1i("iterNum", iterationNum);
+
 	}
 	s->Unbind();
 }
