@@ -408,7 +408,8 @@ void Renderer::MoveCamera(int cameraIndx, int type, float amt)
             cameras[cameraIndx]->TranslateInSystem(cameras[cameraIndx]->MakeTransd().block<3,3>(0,0),Eigen::Vector3d(0, amt, 0)); //MakeTransNoScale was here
             break;
         case zTranslate:
-            cameras[cameraIndx]->TranslateInSystem(cameras[cameraIndx]->MakeTransd().block<3,3>(0,0),Eigen::Vector3d(0, 0, amt)); //MakeTransNoScale was here
+            cameras[cameraIndx]->MyTranslate(Eigen::Vector3d(0, 0, -amt * 0.03), true);
+            //cameras[cameraIndx]->TranslateInSystem(cameras[cameraIndx]->MakeTransd().block<3,3>(0,0),Eigen::Vector3d(0, 0, amt)); //MakeTransNoScale was here
             break;
         case xRotate:
             cameras[cameraIndx]->MyRotate(Eigen::Vector3d(1, 0, 0), amt);

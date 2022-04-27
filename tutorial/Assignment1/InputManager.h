@@ -5,184 +5,181 @@
 #include "imgui/imgui.h"
 
 
-	void glfw_mouse_callback(GLFWwindow* window,int button, int action, int mods)
-	{	
-		if (action == GLFW_PRESS)
+void glfw_mouse_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+		Assignment1* scn = (Assignment1*)rndr->GetScene();
+		double x2, y2;
+
+		glfwGetCursorPos(window, &x2, &y2);
+		rndr->UpdatePress(x2, y2);
+		if (rndr->Picking((int)x2, (int)y2))
 		{
-			Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-			Assignment1* scn = (Assignment1*)rndr->GetScene();
-			double x2, y2;
-			
-			glfwGetCursorPos(window, &x2, &y2);
-			rndr->UpdatePress(x2, y2);
-			if (rndr->Picking((int)x2, (int)y2))
-			{
-				rndr->UpdatePosition(x2, y2);
-				if(button == GLFW_MOUSE_BUTTON_LEFT)
-					rndr->Pressed();
-			}
-			else
-			{
-				rndr->UnPick(2);
-			}
-		
+			rndr->UpdatePosition(x2, y2);
+
+			if (button == GLFW_MOUSE_BUTTON_LEFT)
+				rndr->Pressed();
 		}
 		else
 		{
-			Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 			rndr->UnPick(2);
 		}
+
 	}
-	
-	void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	else
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-		Assignment1* scn = (Assignment1*)rndr->GetScene();
-		
-		if (rndr->IsPicked())
-		{
-			scn->data()->MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + yoffset * 0.01));
-
-			//scn->data()->MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + yoffset * 0.01)); //data().MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + y * 0.01));
-
-			//rndr->UpdateZpos((int)yoffset);
-			//rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
-		}
-		else
-		{
-			rndr->MoveCamera(0, rndr->zTranslate, (float)yoffset);
-		}
-		
-
-		//Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-		//if (rndr->IsPicked())
-		//	scn->data()->MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + yoffset * 0.01)); //data().MyScale(Eigen::Vector3d(1 + yoffset * 0.01, 1 + yoffset * 0.01, 1 + y * 0.01));
-		//else
-		//	rndr->GetScene()->MyTranslate(Eigen::Vector3d(0, 0, -yoffset * 0.03), true);
+		rndr->UnPick(2);
 	}
-	
-	void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-	{
-		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-		Assignment1* scn = (Assignment1*)rndr->GetScene();
+}
 
-		rndr->UpdatePosition((float)xpos,(float)ypos);
-
-		if (rndr->CheckViewport(xpos,ypos, 0))
-		{
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-			{
-
-				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
-			}
-			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			{
-				
-				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
-			}
-			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && rndr->IsPicked() && rndr->IsMany())
-					rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
-
-		}
-	}
-
-	void glfw_window_size_callback(GLFWwindow* window, int width, int height)
-	{
-		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-
-        rndr->resize(window,width,height);
-		
-	}
-	
-	void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-		Assignment1* scn = (Assignment1*)rndr->GetScene();
-		//rndr->FreeShapes(2);
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-		{
-			switch (key)
-			{
-			case GLFW_KEY_ESCAPE:
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				break;
-				
-			case GLFW_KEY_SPACE:
-				if (scn->IsActive())
-					scn->Deactivate();
-				else
-					scn->Activate();
-				break;
-
-			case GLFW_KEY_UP:
-				scn->coeffs[scn->picked_coeff - 1] += 0.01;
-				//rndr->MoveCamera(0, scn->xRotate, 0.05f);
-				
-				break;
-			case GLFW_KEY_DOWN:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
-				scn->coeffs[scn->picked_coeff - 1] -= 0.01;
-				//rndr->MoveCamera(0, scn->xRotate, -0.05f);
-				break;
-			case GLFW_KEY_LEFT:
-				scn->iterationNum += 1;
-				//rndr->MoveCamera(0, scn->yRotate, 0.05f);
-				//rndr->MoveCamera(0, scn->yRotate, 0.05f);
-				break;
-			case GLFW_KEY_RIGHT:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
-				//cout<< "down: "<<endl;
-				if (scn->iterationNum > 1) {
-					scn->iterationNum -= 1;
-				}
-				//rndr->MoveCamera(0, scn->yRotate, -0.05f);
-				break;
-			case GLFW_KEY_U:
-				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
-				break;
-			case GLFW_KEY_D:
-				rndr->MoveCamera(0, scn->yTranslate, -0.25f);
-				break;
-			case GLFW_KEY_L:
-				rndr->MoveCamera(0, scn->xTranslate, -0.25f);
-				break;
-			
-			case GLFW_KEY_R:
-				rndr->MoveCamera(0, scn->xTranslate, 0.25f);
-				break;
-			
-			case GLFW_KEY_B:
-				rndr->MoveCamera(0, scn->zTranslate, 0.5f);
-				break;
-			case GLFW_KEY_F:
-				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
-				break;
-			case GLFW_KEY_1:
-				scn->picked_coeff = 1;
-				break;
-			case GLFW_KEY_2:
-				scn->picked_coeff = 2;
-				break;
-			case GLFW_KEY_3:
-				scn->picked_coeff = 3;
-				break;
-			case GLFW_KEY_4:
-				scn->picked_coeff = 4;
-				break;
-			default:
-				break;
-
-			}
-		}
-	}
-
-
-void Init(Display& display, igl::opengl::glfw::imgui::ImGuiMenu *menu)
+void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    display.AddKeyCallBack(glfw_key_callback);
-    display.AddMouseCallBacks(glfw_mouse_callback, glfw_scroll_callback, glfw_cursor_position_callback);
-    display.AddResizeCallBack(glfw_window_size_callback);
-    menu->init(&display);
+	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+	Assignment1* scn = (Assignment1*)rndr->GetScene();
+	scn->width += yoffset;
+	std::cout << "The width is: " << scn->width << std::endl;
+}
+
+void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+	Assignment1* scn = (Assignment1*)rndr->GetScene();
+
+	rndr->UpdatePosition((float)xpos, (float)ypos);
+
+	if (rndr->CheckViewport(xpos, ypos, 0))
+	{
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		{
+			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+
+		}
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			//rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
+
+			scn->UpdatePosition(xpos, ypos, false);
+
+		}
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+		{
+			//rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
+
+			scn->UpdatePosition(xpos * 0.5, ypos * 0.5, true);
+
+		}
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && rndr->IsPicked() && rndr->IsMany())
+			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+
+	}
+}
+
+void glfw_window_size_callback(GLFWwindow* window, int width, int height)
+{
+	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+
+	rndr->resize(window, width, height);
+
+}
+
+void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+	Assignment1* scn = (Assignment1*)rndr->GetScene();
+	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
+			break;
+
+		case GLFW_KEY_SPACE:
+			if (scn->IsActive())
+				scn->Deactivate();
+			else
+				scn->Activate();
+			break;
+
+		case GLFW_KEY_UP:
+			scn->coeffs[scn->picked_coeff] += 1;
+			break;
+		case GLFW_KEY_DOWN:
+			scn->coeffs[scn->picked_coeff] -= 1;
+			break;
+		case GLFW_KEY_LEFT:
+			scn->iterationNum += 1;
+			break;
+		case GLFW_KEY_RIGHT:
+			if (scn->iterationNum > 1) {
+				scn->iterationNum -= 1;
+			}
+			break;
+		case GLFW_KEY_K:
+			std::cout << "Coeffs[0]: " << scn->coeffs[0] << std::endl;
+			std::cout << "Coeffs[1]: " << scn->coeffs[1] << std::endl;
+			std::cout << "Coeffs[2]: " << scn->coeffs[2] << std::endl;
+			std::cout << "Coeffs[3]: " << scn->coeffs[3] << std::endl;
+			break;
+		case GLFW_KEY_U:
+			rndr->MoveCamera(0, scn->yTranslate, 0.25f);
+			break;
+		case GLFW_KEY_D:
+			rndr->MoveCamera(0, scn->yTranslate, -0.25f);
+			break;
+		case GLFW_KEY_L:
+			rndr->MoveCamera(0, scn->xTranslate, -0.25f);
+			break;
+
+		case GLFW_KEY_R:
+			rndr->MoveCamera(0, scn->xTranslate, 0.25f);
+			break;
+
+		case GLFW_KEY_B:
+			rndr->MoveCamera(0, scn->zTranslate, 0.5f);
+			break;
+		case GLFW_KEY_F:
+			rndr->MoveCamera(0, scn->zTranslate, -0.5f);
+			break;
+		case GLFW_KEY_KP_1:
+			scn->picked_coeff = 0;
+			break;
+		case '1':
+			scn->picked_coeff = 0;
+			break;
+		case GLFW_KEY_KP_2:
+			scn->picked_coeff = 1;
+			break;
+		case '2':
+			scn->picked_coeff = 1;
+			break;
+		case GLFW_KEY_KP_3:
+			scn->picked_coeff = 2;
+			break;
+		case '3':
+			scn->picked_coeff = 2;
+			break;
+		case GLFW_KEY_KP_4:
+			scn->picked_coeff = 3;
+			break;
+		case '4':
+			scn->picked_coeff = 3;
+			break;
+		default:
+			break;
+
+		}
+	}
+}
+
+
+void Init(Display& display, igl::opengl::glfw::imgui::ImGuiMenu* menu)
+{
+	display.AddKeyCallBack(glfw_key_callback);
+	display.AddMouseCallBacks(glfw_mouse_callback, glfw_scroll_callback, glfw_cursor_position_callback);
+	display.AddResizeCallBack(glfw_window_size_callback);
+	menu->init(&display);
 }

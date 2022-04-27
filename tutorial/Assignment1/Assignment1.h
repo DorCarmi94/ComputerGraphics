@@ -3,11 +3,11 @@
 
 class Assignment1 : public igl::opengl::glfw::Viewer
 {
-	
+
 public:
-	
+
 	Assignment1();
-//	Assignment1(float angle,float relationWH,float near, float far);
+	//	Assignment1(float angle,float relationWH,float near, float far);
 	void Init();
 	void Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx);
 	void WhenRotate();
@@ -20,12 +20,21 @@ public:
 	std::complex<float> NewtonCubicRoot(std::complex<float> num);
 
 	Eigen::Vector3cf FindRootsOfReduceEquation(Eigen::Vector2cf reduceCoeffs);
-	
+
 	~Assignment1(void);
-	
+
 	Eigen::Vector4cf coeffs;
 	int picked_coeff;
 	int iterationNum;
+
+
+	void UpdatePosition(float x_new, float y_new, bool isRelease);
+	float x_old, y_old;
+	float x_rel, y_rel;
+	float x_totalrel, y_totalrel;
+	float width;
+
+	bool moving;
 };
 
 
